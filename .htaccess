@@ -1,30 +1,49 @@
-<Files .htaccess>
+# Deny access to .htaccess and .nginx_project_config.conf files
+<FilesMatch "^\.htaccess|\.nginx_project_config\.conf$">
     Order Allow,Deny
     Deny from all
-</Files>
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
 <IfModule mod_rewrite.c>
-RewriteEngine On
+    RewriteEngine On
+    RewriteBase /
 
-# Pass Authorization header for PHP (if necessary)
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # Explicitly handle /admin requests
+    RewriteRule ^admin/?$ /index.php?access=main&path=admin [L,QSA]
+    
+    # Handle /admin/anything requests
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^admin/(.*)$ /index.php?access=main&path=admin/$1 [L,QSA]
 
-# Set base URL
-RewriteBase /
+    # Original static file handling
+    RewriteRule ^(.*\.(css|js|png|jpg|jpeg|gif))$ /index.php?access=static&path=$1 [L,QSA]
 
-# Don't rewrite requests to index.php itself
-RewriteRule ^index\.php$ - [L]
+    # Root request
+    RewriteRule ^$ /index.php?access=main&path= [L,QSA]
 
-# For static files (CSS, JS, images), rewrite to index.php with access=static and the file path
-RewriteRule ^(.*\.(css|js|png|jpg|jpeg|gif))$ /index.php?access=static&file=$1 [L,QSA]
-
-# If the requested file doesn't exist and isn't a directory, route to index.php with access=main
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /index.php?access=main&file=$1 [L,QSA]
-
-
+    # Other requests
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ /index.php?access=main&path=$1 [L,QSA]
 </IfModule>
+
+# Error document handling
+ErrorDocument 400 /index.php?access=error-400&path=%{REQUEST_URI}
+ErrorDocument 401 /index.php?access=error-401&path=%{REQUEST_URI}
+ErrorDocument 403 /index.php?access=error-403&path=%{REQUEST_URI}
+ErrorDocument 404 /index.php?access=error-404&path=%{REQUEST_URI}
+ErrorDocument 500 /index.php?access=error-500&path=%{REQUEST_URI}
+ErrorDocument 501 /index.php?access=error-501&path=%{REQUEST_URI}
+ErrorDocument 502 /index.php?access=error-502&path=%{REQUEST_URI}
+ErrorDocument 503 /index.php?access=error-503&path=%{REQUEST_URI}
+ErrorDocument 504 /index.php?access=error-504&path=%{REQUEST_URI}
+
 <IfModule mod_headers.c>
+    # Set Accept-CH and Permissions-Policy headers
     Header set Accept-CH "Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Model, Sec-CH-UA-Full-Version, Sec-CH-UA-Full-Version-List, Sec-CH-Prefers-Color-Scheme, Sec-CH-UA-Arch, Sec-CH-UA-Bitness"
     Header set Permissions-Policy "ch-ua=*, ch-ua-mobile=*, ch-ua-platform=*, ch-ua-model=*, ch-ua-full-version=*, ch-ua-full-version-list=*, ch-prefers-color-scheme=*, ch-ua-arch=*, ch-ua-bitness=*"
 </IfModule>

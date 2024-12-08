@@ -1,5 +1,3 @@
 <?php
-// Debug information
-echo 'meow';
-echo "Access type: " . $_GET['access'] . "\n";
-echo "Requested file: " . $_GET['file'] ?? 'N/A';
+$_URI=explode('/', trim($_GET['path'], '/'));
+echo json_encode($_URI);
