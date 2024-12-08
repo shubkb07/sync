@@ -1,0 +1,30 @@
+<Files .htaccess>
+    Order Allow,Deny
+    Deny from all
+</Files>
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Pass Authorization header for PHP (if necessary)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Set base URL
+RewriteBase /
+
+# Don't rewrite requests to index.php itself
+RewriteRule ^index\.php$ - [L]
+
+# For static files (CSS, JS, images), rewrite to index.php with access=static and the file path
+RewriteRule ^(.*\.(css|js|png|jpg|jpeg|gif))$ /index.php?access=static&file=$1 [L,QSA]
+
+# If the requested file doesn't exist and isn't a directory, route to index.php with access=main
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php?access=main&file=$1 [L,QSA]
+
+
+</IfModule>
+<IfModule mod_headers.c>
+    Header set Accept-CH "Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Model, Sec-CH-UA-Full-Version, Sec-CH-UA-Full-Version-List, Sec-CH-Prefers-Color-Scheme, Sec-CH-UA-Arch, Sec-CH-UA-Bitness"
+    Header set Permissions-Policy "ch-ua=*, ch-ua-mobile=*, ch-ua-platform=*, ch-ua-model=*, ch-ua-full-version=*, ch-ua-full-version-list=*, ch-prefers-color-scheme=*, ch-ua-arch=*, ch-ua-bitness=*"
+</IfModule>
