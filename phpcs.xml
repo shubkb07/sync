@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Coding Standards">
+
+    <!-- Specify the standard -->
+    <description>WordPress Coding Standards for PHP CodeSniffer</description>
+
+	<rule ref="PHPCSUtils"/>
+
+    <!-- Include WordPress-Core and WordPress-Docs rules -->
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+
+    <!-- Include PHPCompatibility rules -->
+    <rule ref="PHPCompatibility"/>
+
+    <!-- Exclude specific files or directories (optional) -->
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Set the default severity for errors (optional) -->
+    <arg value="severity=2"/>
+
+    <!-- Set the file extensions to scan (optional) -->
+    <arg value="extensions=php"/>
+
+    <!-- Set the standard for reporting (optional) -->
+    <arg value="report=full"/>
+</ruleset>
