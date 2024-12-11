@@ -140,9 +140,9 @@ class Fatal_Error_Handler {
 	 * @param true|Sync_Error $handled Whether Recovery Mode handled the fatal error.
 	 */
 	protected function display_error_template( $error, $handled ) {
-		if ( defined( 'CONTENT' ) ) {
+		if ( defined( 'CONTENT_DIR' ) ) {
 			// Load custom PHP error template, if present.
-			$php_error_pluggable = CONTENT . '/php-error.php';
+			$php_error_pluggable = CONTENT_DIR . '/php-error.php';
 			if ( is_readable( $php_error_pluggable ) ) {
 				require_once $php_error_pluggable;
 

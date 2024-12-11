@@ -6,15 +6,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'INC' ) ) {
-	define( 'INC', ABSPATH . 'includes/' );
+	define( 'INC', 'includes/' );
+}
+
+if ( ! defined( 'INC_DIR' ) ) {
+	define( 'INC_DIR', ABSPATH . INC );
 }
 
 if ( ! defined( 'CONTENT' ) ) {
-	define( 'CONTENT', ABSPATH . 'public/' );
+	define( 'CONTENT', 'public/' );
 }
 
-if ( ! defined( 'ADMIN' ) ) {
-	define( 'ADMIN', ABSPATH . 'admin/' );
+if ( ! defined( 'CONTENT_DIR' ) ) {
+	define( 'CONTENT_DIR', ABSPATH . CONTENT );
+}
+
+if ( ! defined( 'ADMIN_PATH' ) ) {
+	define( 'ADMIN_PATH', 'admin/' );
+}
+
+if ( ! defined( 'ADMIN_DIR' ) ) {
+	define( 'ADMIN_DIR', ABSPATH . ADMIN_PATH );
 }
 
 require_once INC . 'load.php';

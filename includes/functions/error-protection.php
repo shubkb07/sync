@@ -83,8 +83,8 @@ function register_fatal_error_handler() {
 	}
 
 	$handler = null;
-	if ( defined( 'CONTENT' ) && is_readable( CONTENT . '/fatal-error-handler.php' ) ) {
-		$handler = include CONTENT . '/fatal-error-handler.php';
+	if ( defined( 'CONTENT_DIR' ) && is_readable( CONTENT_DIR . '/fatal-error-handler.php' ) ) {
+		$handler = include CONTENT_DIR . '/fatal-error-handler.php';
 	}
 
 	if ( ! is_object( $handler ) || ! is_callable( array( $handler, 'handle' ) ) ) {

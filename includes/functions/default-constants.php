@@ -73,8 +73,8 @@ function initial_constants() {
 		$blog_id = 1;
 	}
 
-	if ( ! defined( 'CONTENT' ) ) {
-		define( 'CONTENT', ABSPATH . 'public' ); // No trailing slash, full paths only - CONTENT_URL is defined further down.
+	if ( ! defined( 'CONTENT_DIR' ) ) {
+		define( 'CONTENT_DIR', ABSPATH . 'public' ); // No trailing slash, full paths only - CONTENT_URL is defined further down.
 	}
 
 	/*
@@ -171,7 +171,7 @@ function initial_constants() {
  */
 function plugin_directory_constants() {
 	if ( ! defined( 'CONTENT_URL' ) ) {
-		define( 'CONTENT_URL', get_option( 'siteurl' ) . '/public' ); // Full URL - CONTENT is defined further up.
+		define( 'CONTENT_URL', get_option( 'siteurl' ) . '/public' ); // Full URL - CONTENT_DIR is defined further up.
 	}
 
 	/**
@@ -180,7 +180,7 @@ function plugin_directory_constants() {
 	 * @since 2.6.0
 	 */
 	if ( ! defined( 'PLUGIN_DIR' ) ) {
-		define( 'PLUGIN_DIR', CONTENT . '/plugins' ); // Full path, no trailing slash.
+		define( 'PLUGIN_DIR', CONTENT_DIR . '/plugins' ); // Full path, no trailing slash.
 	}
 
 	/**
@@ -208,7 +208,7 @@ function plugin_directory_constants() {
 	 * @since 2.8.0
 	 */
 	if ( ! defined( 'MU_PLUGIN_DIR' ) ) {
-		define( 'MU_PLUGIN_DIR', CONTENT . '/mu-plugins' ); // Full path, no trailing slash.
+		define( 'MU_PLUGIN_DIR', CONTENT_DIR . '/mu-plugins' ); // Full path, no trailing slash.
 	}
 
 	/**

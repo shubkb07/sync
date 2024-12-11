@@ -10,6 +10,12 @@ require_once CLASSES . 'class-recovery-mode-key-service.php';
 require_once CLASSES . 'class-recovery-mode-link-service.php';
 require_once CLASSES . 'class-recovery-mode-email-service.php';
 require_once CLASSES . 'class-recovery-mode.php';
+require_once CLASSES . 'class-list-util.php';
+require_once CLASSES . 'class-token-map.php';
+require_once CLASSES . 'class-meta-query.php';
+require_once CLASSES . 'class-matchesmapregex.php';
+require_once CLASSES . 'class-sync.php';
+require_once CLASSES . 'class-error.php';
 
 global $version, $required_php_version, $required_mysql_version;
 $version = '1.0';
@@ -179,13 +185,12 @@ function check_php_mysql_versions() {
 		exit( 1 );
 	}
 
-	// This runs before default constants are defined, so we can't assume CONTENT is set yet.
-	$content_dir = defined( 'CONTENT' ) ? CONTENT : ABSPATH . 'public';
+	// This runs before default constants are defined, so we can't assume CONTENT_DIR is set yet.
+	$content_dir = defined( 'CONTENT_DIR' ) ? CONTENT_DIR : ABSPATH . 'public';
 
 	if ( ! function_exists( 'mysqli_connect' )
 		&& ! file_exists( $content_dir . '/db.php' )
 	) {
-		require_once INC . '/functions.php';
 		load_translations_early();
 
 		$message = '<p>' . __( 'Your PHP installation appears to be missing the MySQL extension which is required by Site.' ) . "</p>\n";
@@ -366,8 +371,8 @@ function maintenance() {
 		return;
 	}
 
-	if ( file_exists( CONTENT . '/maintenance.php' ) ) {
-		require_once CONTENT . '/maintenance.php';
+	if ( file_exists( CONTENT_DIR . '/maintenance.php' ) ) {
+		require_once CONTENT_DIR . '/maintenance.php';
 		die();
 	}
 
@@ -583,7 +588,7 @@ function debug_mode() {
 		}
 
 		if ( in_array( strtolower( (string) DEBUG_LOG ), array( 'true', '1' ), true ) ) {
-			$log_path = CONTENT . '/debug.log';
+			$log_path = CONTENT_DIR . '/debug.log';
 		} elseif ( is_string( DEBUG_LOG ) ) {
 			$log_path = DEBUG_LOG;
 		} else {
@@ -616,17 +621,17 @@ function debug_mode() {
  * To set directory manually, define the `LANG_DIR` constant
  * in config.php.
  *
- * If the language directory exists within `CONTENT`, it
+ * If the language directory exists within `CONTENT_DIR`, it
  * is used. Otherwise the language directory is assumed to live
- * in `INC`.
+ * in `INC_DIR`.
  *
  * @since 3.0.0
  * @access private
  */
 function set_lang_dir() {
 	if ( ! defined( 'LANG_DIR' ) ) {
-		if ( file_exists( CONTENT . '/languages' ) && @is_dir( CONTENT . '/languages' )
-			|| ! @is_dir( INC . '/languages' )
+		if ( file_exists( CONTENT_DIR . '/languages' ) && @is_dir( CONTENT_DIR . '/languages' )
+			|| ! @is_dir( INC_DIR . '/languages' )
 		) {
 			/**
 			 * Server path of the language directory.
@@ -635,7 +640,7 @@ function set_lang_dir() {
 			 *
 			 * @since 2.1.0
 			 */
-			define( 'LANG_DIR', CONTENT . '/languages' );
+			define( 'LANG_DIR', CONTENT_DIR . '/languages' );
 		} else {
 			/**
 			 * Server path of the language directory.
@@ -644,7 +649,7 @@ function set_lang_dir() {
 			 *
 			 * @since 2.1.0
 			 */
-			define( 'LANG_DIR', INC . '/languages' );
+			define( 'LANG_DIR', INC_DIR . '/languages' );
 		}
 	}
 }
@@ -659,10 +664,10 @@ function set_lang_dir() {
 function require_db() {
 	global $db;
 
-	require_once INC . '/class-db.php';
+	require_once CLASSES . '/class-db.php';
 
-	if ( file_exists( CONTENT . '/db.php' ) ) {
-		require_once CONTENT . '/db.php';
+	if ( file_exists( CONTENT_DIR . '/db.php' ) ) {
+		require_once CONTENT_DIR . '/db.php';
 	}
 
 	if ( isset( $db ) ) {
@@ -670,7 +675,7 @@ function require_db() {
 	}
 
 	$dbuser     = defined( 'DB_USER' ) ? DB_USER : '';
-	$dbpassword = defined( 'DB_PASSWORD' ) ? DB_PASS : '';
+	$dbpassword = defined( 'DB_PASS' ) ? DB_PASS : '';
 	$dbname     = defined( 'DB_NAME' ) ? DB_NAME : '';
 	$dbhost     = defined( 'DB_HOST' ) ? DB_HOST : '';
 
@@ -810,8 +815,8 @@ function start_object_cache() {
 			 * results in a cache_init() function existing, we note
 			 * that an external object cache is being used.
 			 */
-			if ( file_exists( CONTENT . '/object-cache.php' ) ) {
-				require_once CONTENT . '/object-cache.php';
+			if ( file_exists( CONTENT_DIR . '/object-cache.php' ) ) {
+				require_once CONTENT_DIR . '/object-cache.php';
 
 				if ( function_exists( 'cache_init' ) ) {
 					using_ext_object_cache( true );
@@ -822,7 +827,7 @@ function start_object_cache() {
 					$filter = Hook::build_preinitialized_hooks( $filter );
 				}
 			}
-		} elseif ( ! using_ext_object_cache() && file_exists( CONTENT . '/object-cache.php' ) ) {
+		} elseif ( ! using_ext_object_cache() && file_exists( CONTENT_DIR . '/object-cache.php' ) ) {
 			/*
 			 * Sometimes advanced-cache.php can load object-cache.php before
 			 * this function is run. This breaks the function_exists() check
@@ -834,10 +839,10 @@ function start_object_cache() {
 	}
 
 	if ( ! using_ext_object_cache() ) {
-		require_once INC . '/cache.php';
+		require_once FUNCTIONS . '/cache.php';
 	}
 
-	require_once INC . '/cache-compat.php';
+	require_once FUNCTIONS . '/cache-compat.php';
 
 	/*
 	 * If cache supports reset, reset instead of init if already
@@ -1429,16 +1434,7 @@ function load_translations_early() {
 	}
 
 	// Translation and localization.
-	require_once INC . '/pomo/mo.php';
-	require_once INC . '/l10n/class-translation-controller.php';
-	require_once INC . '/l10n/class-translations.php';
-	require_once INC . '/l10n/class-translation-file.php';
-	require_once INC . '/l10n/class-translation-file-mo.php';
-	require_once INC . '/l10n/class-translation-file-php.php';
-	require_once INC . '/l10n.php';
-	require_once INC . '/class-textdomain-registry.php';
-	require_once INC . '/class-locale.php';
-	require_once INC . '/class-locale-switcher.php';
+	require_once FUNCTIONS . '/l10n.php';
 
 	$locales   = array();
 	$locations = array();
@@ -1467,16 +1463,16 @@ function load_translations_early() {
 			$locations[] = LANG_DIR;
 		}
 
-		if ( defined( 'CONTENT' ) && @is_dir( CONTENT . '/languages' ) ) {
-			$locations[] = CONTENT . '/languages';
+		if ( defined( 'CONTENT_DIR' ) && @is_dir( CONTENT_DIR . '/languages' ) ) {
+			$locations[] = CONTENT_DIR . '/languages';
 		}
 
 		if ( @is_dir( ABSPATH . 'public/languages' ) ) {
 			$locations[] = ABSPATH . 'public/languages';
 		}
 
-		if ( @is_dir( INC . '/languages' ) ) {
-			$locations[] = INC . '/languages';
+		if ( @is_dir( INC_DIR . '/languages' ) ) {
+			$locations[] = INC_DIR . '/languages';
 		}
 
 		if ( ! $locations ) {
@@ -1938,12 +1934,19 @@ debug_mode();
  * @param bool $enable_advanced_cache Whether to enable loading advanced-cache.php (if present).
  *                                    Default true.
  */
-if ( CACHE && apply_filters( 'enable_loading_advanced_cache_dropin', true ) && file_exists( CONTENT . '/advanced-cache.php' ) ) {
+if ( CACHE && apply_filters( 'enable_loading_advanced_cache_dropin', true ) && file_exists( CONTENT_DIR . '/advanced-cache.php' ) ) {
 	// For an advanced caching plugin to use. Uses a static drop-in because you would only want one.
-	include CONTENT . '/advanced-cache.php';
+	include CONTENT_DIR . '/advanced-cache.php';
 
 	// Re-initialize any hooks added manually by advanced-cache.php.
 	if ( $filter ) {
 		$filter = Hook::build_preinitialized_hooks( $filter );
 	}
 }
+
+set_lang_dir();
+load_translations_early();
+require_db();
+$GLOBALS['table_prefix'] = DB_PREFIX;
+set_db_vars();
+start_object_cache();

@@ -395,47 +395,20 @@ function _call_all_hook( $args ) {
 	$filter['all']->do_all_hook( $args );
 }
 
-function _deprecated_hook( $hook, $version, $replacement = '', $message = '' ) {
-	/**
-	 * Fires when a deprecated hook is called.
-	 *
-	 * @since 4.6.0
-	 *
-	 * @param string $hook        The hook that was called.
-	 * @param string $replacement The hook that should be used as a replacement.
-	 * @param string $version     The version of Site that deprecated the argument used.
-	 * @param string $message     A message regarding the change.
-	 */
-	do_action( 'deprecated_hook_run', $hook, $replacement, $version, $message );
+function _filter_build_unique_id( $hook_name, $callback, $priority ) {
+	if ( is_string( $callback ) ) {
+		return $callback;
+	}
 
-	/**
-	 * Filters whether to trigger deprecated hook errors.
-	 *
-	 * @since 4.6.0
-	 *
-	 * @param bool $trigger Whether to trigger deprecated hook errors. Requires
-	 *                      `DEBUG` to be defined true.
-	 */
-	if ( DEBUG && apply_filters( 'deprecated_hook_trigger_error', true ) ) {
-		$message = empty( $message ) ? '' : ' ' . $message;
+	if ( is_object( $callback ) ) {
+		$callback = array( $callback, '' );
+	} else {
+		$callback = (array) $callback;
+	}
 
-		if ( $replacement ) {
-			$message = sprintf(
-				/* translators: 1: Site hook name, 2: Version number, 3: Alternative hook name. */
-				__( 'Hook %1$s is <strong>deprecated</strong> since version %2$s! Use %3$s instead.' ),
-				$hook,
-				$version,
-				$replacement
-			) . $message;
-		} else {
-			$message = sprintf(
-				/* translators: 1: Site hook name, 2: Version number. */
-				__( 'Hook %1$s is <strong>deprecated</strong> since version %2$s with no alternative available.' ),
-				$hook,
-				$version
-			) . $message;
-		}
-
-		sync_trigger_error( '', $message, E_USER_DEPRECATED );
+	if ( is_object( $callback[0] ) ) {
+		return spl_object_hash( $callback[0] ) . $callback[1];
+	} elseif ( is_string( $callback[0] ) ) {
+		return $callback[0] . '::' . $callback[1];
 	}
 }
