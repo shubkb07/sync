@@ -1,9 +1,5 @@
 <?php
 
-define ('CLASSES', INC_DIR . 'classes/');
-define ('FUNCTIONS', INC_DIR . 'functions/');
-define ('LIB', INC_DIR . 'lib/');
-
 $function_files = array(
     'compat',
     'helper',

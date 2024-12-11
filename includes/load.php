@@ -3,6 +3,10 @@ if ( function_exists( 'error_reporting' ) ) {
 	error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
 }
 
+define ('CLASSES', INC_DIR . 'classes/');
+define ('FUNCTIONS', INC_DIR . 'functions/');
+define ('LIB', INC_DIR . 'lib/');
+
 require_once INC_DIR . 'define.php';
 
 if ( file_exists( ABSPATH . 'sync-config.php' ) ) {
@@ -25,6 +29,9 @@ if ( file_exists( ABSPATH . 'sync-config.php' ) ) {
 
 if ( 'static' === $_SERVER['ACCESS'] ) {
 
+	if ( ! file_exists( ABSPATH . 'sync-config.php' ) ) {
+		require_once FUNCTIONS . 'includes\functions\static-preinstall.php';
+	}
 	$extension = pathinfo($_SERVER['REQUEST_PATH'], PATHINFO_EXTENSION);
 	header( 'Content-Type: ' . get_mime_types()[$extension] );
 	echo file_get_contents( $_SERVER['REQUEST_PATH'] );
