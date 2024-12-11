@@ -17,5 +17,5 @@ if ( file_exists( ABSPATH . 'sync-config.php' ) ) {
 		define( 'INSTALLING', true );
 	}
 } else {
-	require_once ADMIN . 'setup/config.php';
+	require_once ADMIN_DIR . 'setup/config.php';
 }
