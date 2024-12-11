@@ -30,7 +30,7 @@ if ( file_exists( ABSPATH . 'sync-config.php' ) ) {
 if ( 'static' === $_SERVER['ACCESS'] ) {
 
 	if ( ! file_exists( ABSPATH . 'sync-config.php' ) ) {
-		require_once FUNCTIONS . '\static-preinstall.php';
+		require_once FUNCTIONS . 'static-preinstall.php';
 	}
 	$extension = pathinfo($_SERVER['REQUEST_PATH'], PATHINFO_EXTENSION);
 	header( 'Content-Type: ' . get_mime_types()[$extension] );

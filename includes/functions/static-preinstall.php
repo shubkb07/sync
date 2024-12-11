@@ -1,7 +1,7 @@
 <?php
 
 function get_mime_types() {
-	array(
+	return array(
 		'css' => 'text/css',
 		'js'  => 'application/javascript',
 	);
