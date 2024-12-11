@@ -839,7 +839,7 @@ function start_object_cache() {
 	}
 
 	if ( ! using_ext_object_cache() ) {
-		require_once FUNCTIONS . '/cache.php';
+		require_once FUNCTIONS . '/object-cache.php';
 	}
 
 	require_once FUNCTIONS . '/cache-compat.php';

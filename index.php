@@ -1,5 +1,7 @@
 <?php
-$_URI=explode('/', trim($_GET['path'], '/'));
+$_SERVER['REQUEST_PATH'] = $_GET['path'];
+$_SERVER['URI'] = explode( '/', trim( $_GET['path'], '/' ) );
+$_SERVER['ACCESS'] = $_GET['access'];
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );

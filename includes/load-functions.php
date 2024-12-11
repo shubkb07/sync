@@ -6,7 +6,6 @@ define ('LIB', INC_DIR . 'lib/');
 
 $function_files = array(
     'compat',
-    'object-cache',
     'helper',
     'hook',
     'error-protection',

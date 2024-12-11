@@ -22,7 +22,7 @@ define( 'ARRAY_N', 'ARRAY_N' );
  * access to the Sync Site database.
  *
  * It is possible to replace this class with your own by setting the $db global variable
- * in wp-content/db.php file to your class. The db class will still be included, so you can
+ * in public/functions/db.php file to your class. The db class will still be included, so you can
  * extend it or simply use your own.
  *
  * @since 0.71
@@ -505,7 +505,7 @@ class db {
 	/**
 	 * Format specifiers for DB columns.
 	 *
-	 * Columns not listed here default to %s. Initialized during WP load.
+	 * Columns not listed here default to %s. Initialized during load.
 	 * Keys are column names, values are format types: 'ID' => '%d'.
 	 *
 	 * @since 2.8.0
@@ -514,7 +514,7 @@ class db {
 	 * @see db::insert()
 	 * @see db::update()
 	 * @see db::delete()
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 * @var array
 	 */
 	public $field_types = array();
@@ -706,7 +706,7 @@ class db {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @var WP_Error|string
+	 * @var Sync_Error|string
 	 */
 	public $error = null;
 
@@ -733,8 +733,8 @@ class db {
 		$this->dbname     = $dbname;
 		$this->dbhost     = $dbhost;
 
-		// wp-config.php creation will manually connect when ready.
-		if ( defined( 'WP_SETUP_CONFIG' ) ) {
+		// sync-config.php creation will manually connect when ready.
+		if ( defined( 'SETUP_CONFIG' ) ) {
 			return;
 		}
 
@@ -968,12 +968,12 @@ class db {
 	 * @param string $prefix          Alphanumeric name for the new prefix.
 	 * @param bool   $set_table_names Optional. Whether the table names, e.g. db::$posts,
 	 *                                should be updated or not. Default true.
-	 * @return string|WP_Error Old prefix or WP_Error on error.
+	 * @return string|Sync_Error Old prefix or Sync_Error on error.
 	 */
 	public function set_prefix( $prefix, $set_table_names = true ) {
 
 		if ( preg_match( '|[^a-z0-9_]|i', $prefix ) ) {
-			return new WP_Error( 'invalid_db_prefix', 'Invalid database prefix' );
+			return new Sync_Error( 'invalid_db_prefix', 'Invalid database prefix' );
 		}
 
 		$old_prefix = is_multisite() ? '' : $prefix;
@@ -1174,7 +1174,7 @@ class db {
 		if ( ! $success ) {
 			$this->ready = false;
 			if ( ! did_action( 'template_redirect' ) ) {
-				wp_load_translations_early();
+				load_translations_early();
 
 				$message = '<h1>' . __( 'Cannot select database' ) . "</h1>\n";
 
@@ -1249,7 +1249,7 @@ class db {
 		} else {
 			$class = get_class( $this );
 
-			wp_load_translations_early();
+			load_translations_early();
 			/* translators: %s: Database access abstraction class, usually db or a class extending db. */
 			_doing_it_wrong( $class, sprintf( __( '%s must set a database connection for use with escaping.' ), $class ), '3.6.0' );
 
@@ -1429,10 +1429,10 @@ class db {
 		 *
 		 * Note: str_contains() is not used here, as this file can be included
 		 * directly outside of Sync Site core, e.g. by HyperDB, in which case
-		 * the polyfills from wp-includes/compat.php are not loaded.
+		 * the polyfills from includes/functions/compat.php are not loaded.
 		 */
 		if ( false === strpos( $query, '%' ) ) {
-			wp_load_translations_early();
+			load_translations_early();
 			_doing_it_wrong(
 				'db::prepare',
 				sprintf(
@@ -1501,19 +1501,10 @@ class db {
 				/*
 				 * Note: str_ends_with() is not used here, as this file can be included
 				 * directly outside of Sync Site core, e.g. by HyperDB, in which case
-				 * the polyfills from wp-includes/compat.php are not loaded.
+				 * the polyfills from includes/funtions/compat.php are not loaded.
 				 */
 				&& '%' === substr( $split_query[ $key - 1 ], -1, 1 )
 			) {
-
-				/*
-				 * Before WP 6.2 the "force floats to be locale-unaware" RegEx didn't
-				 * convert "%%%f" to "%%%F" (note the uppercase F).
-				 * This was because it didn't check to see if the leading "%" was escaped.
-				 * And because the "Escape any unescaped percents" RegEx used "[sdF]" in its
-				 * negative lookahead assertion, when there was an odd number of "%", it added
-				 * an extra "%", to give the fully escaped "%%%%f" (not a placeholder).
-				 */
 
 				$s = $split_query[ $key - 2 ] . $split_query[ $key - 1 ];
 				$k = 1;
@@ -1567,7 +1558,7 @@ class db {
 						/*
 						 * Note: str_ends_with() is not used here, as this file can be included
 						 * directly outside of Sync Site core, e.g. by HyperDB, in which case
-						 * the polyfills from wp-includes/compat.php are not loaded.
+						 * the polyfills from includes/functions/compat.php are not loaded.
 						 */
 						|| ( '' === $format && '%' !== substr( $split_query[ $key - 1 ], -1, 1 ) )
 					) {
@@ -1589,7 +1580,7 @@ class db {
 		$dual_use = array_intersect( $arg_identifiers, $arg_strings );
 
 		if ( count( $dual_use ) > 0 ) {
-			wp_load_translations_early();
+			load_translations_early();
 
 			$used_placeholders = array();
 
@@ -1641,7 +1632,7 @@ class db {
 				 * If the passed query only expected one argument,
 				 * but the wrong number of arguments was sent as an array, bail.
 				 */
-				wp_load_translations_early();
+				load_translations_early();
 				_doing_it_wrong(
 					'db::prepare',
 					__( 'The query only expected one placeholder, but an array of multiple placeholders was sent.' ),
@@ -1655,7 +1646,7 @@ class db {
 				 * but they were passed as individual arguments,
 				 * or we were expecting multiple arguments in an array, throw a warning.
 				 */
-				wp_load_translations_early();
+				load_translations_early();
 				_doing_it_wrong(
 					'db::prepare',
 					sprintf(
@@ -1699,7 +1690,7 @@ class db {
 				$args_escaped[] = $value;
 			} else {
 				if ( ! is_scalar( $value ) && ! is_null( $value ) ) {
-					wp_load_translations_early();
+					load_translations_early();
 					_doing_it_wrong(
 						'db::prepare',
 						sprintf(
@@ -1791,7 +1782,7 @@ class db {
 			return false;
 		}
 
-		wp_load_translations_early();
+		load_translations_early();
 
 		// If there is an error then take note of it.
 		if ( is_multisite() ) {
@@ -1806,7 +1797,7 @@ class db {
 				error_log( $msg, 3, ERRORLOGFILE );
 			}
 			if ( defined( 'DIEONDBERROR' ) ) {
-				wp_die( $msg );
+				sync_die( $msg );
 			}
 		} else {
 			$str   = htmlspecialchars( $str, ENT_QUOTES );
@@ -1965,9 +1956,9 @@ class db {
 			$message = '<h1>' . __( 'Error establishing a database connection' ) . "</h1>\n";
 
 			$message .= '<p>' . sprintf(
-				/* translators: 1: wp-config.php, 2: Database host. */
+				/* translators: 1: sync-config.php, 2: Database host. */
 				__( 'This either means that the username and password information in your %1$s file is incorrect or that contact with the database server at %2$s could not be established. This could mean your host&#8217;s database server is down.' ),
-				'<code>wp-config.php</code>',
+				'<code>sync-config.php</code>',
 				'<code>' . htmlspecialchars( $this->dbhost, ENT_QUOTES ) . '</code>'
 			) . "</p>\n";
 
@@ -2107,7 +2098,7 @@ class db {
 		}
 
 		/*
-		 * If template_redirect has already happened, it's too late for wp_die()/dead_db().
+		 * If template_redirect has already happened, it's too late for sync_die()/dead_db().
 		 * Let's just return and hope for the best.
 		 */
 		if ( did_action( 'template_redirect' ) ) {
@@ -2196,7 +2187,7 @@ class db {
 				$this->insert_id  = 0;
 				$this->last_query = $query;
 
-				wp_load_translations_early();
+				load_translations_early();
 
 				$this->last_error = __( 'Sync Site database error: Could not perform query because it contains invalid data.' );
 
@@ -2361,7 +2352,6 @@ class db {
 		if ( ! $placeholder ) {
 			// If ext/hash is not present, compat.php's hash_hmac() does not support sha256.
 			$algo = function_exists( 'hash' ) ? 'sha256' : 'sha1';
-			// Old WP installs may not have AUTH_SALT defined.
 			$salt = defined( 'AUTH_SALT' ) && AUTH_SALT ? AUTH_SALT : (string) rand();
 
 			$placeholder = '{' . hash_hmac( $algo, uniqid( $salt, true ), $salt ) . '}';
@@ -2434,7 +2424,7 @@ class db {
 	 *
 	 * @see db::prepare()
 	 * @see db::$field_types
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 *
 	 * @param string          $table  Table name.
 	 * @param array           $data   Data to insert (in column => value pairs).
@@ -2486,7 +2476,7 @@ class db {
 	 *
 	 * @see db::prepare()
 	 * @see db::$field_types
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 *
 	 * @param string          $table  Table name.
 	 * @param array           $data   Data to insert (in column => value pairs).
@@ -2514,7 +2504,7 @@ class db {
 	 *
 	 * @see db::prepare()
 	 * @see db::$field_types
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 *
 	 * @param string          $table  Table name.
 	 * @param array           $data   Data to insert (in column => value pairs).
@@ -2600,7 +2590,7 @@ class db {
 	 *
 	 * @see db::prepare()
 	 * @see db::$field_types
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 *
 	 * @param string       $table           Table name.
 	 * @param array        $data            Data to update (in column => value pairs).
@@ -2694,7 +2684,7 @@ class db {
 	 *
 	 * @see db::prepare()
 	 * @see db::$field_types
-	 * @see wp_set_db_vars()
+	 * @see set_db_vars()
 	 *
 	 * @param string          $table        Table name.
 	 * @param array           $where        A named array of WHERE clauses (in column => value pairs).
@@ -2783,7 +2773,7 @@ class db {
 				}
 			}
 
-			wp_load_translations_early();
+			load_translations_early();
 
 			if ( 1 === count( $problem_fields ) ) {
 				$this->last_error = sprintf(
@@ -2884,7 +2874,7 @@ class db {
 				$value['charset'] = false;
 			} else {
 				$value['charset'] = $this->get_col_charset( $table, $field );
-				if ( is_wp_error( $value['charset'] ) ) {
+				if ( is_error( $value['charset'] ) ) {
 					return false;
 				}
 			}
@@ -2943,7 +2933,7 @@ class db {
 				$value['length'] = false;
 			} else {
 				$value['length'] = $this->get_col_length( $table, $field );
-				if ( is_wp_error( $value['length'] ) ) {
+				if ( is_error( $value['length'] ) ) {
 					return false;
 				}
 			}
@@ -3145,7 +3135,7 @@ class db {
 	 * @since 4.2.0
 	 *
 	 * @param string $table Table name.
-	 * @return string|WP_Error Table character set, WP_Error object if it couldn't be found.
+	 * @return string|Sync_Error Table character set, Sync_Error object if it couldn't be found.
 	 */
 	protected function get_table_charset( $table ) {
 		$tablekey = strtolower( $table );
@@ -3158,7 +3148,7 @@ class db {
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param string|WP_Error|null $charset The character set to use, WP_Error object
+		 * @param string|Sync_Error|null $charset The character set to use, Sync_Error object
 		 *                                      if it couldn't be found. Default null.
 		 * @param string               $table   The name of the table being checked.
 		 */
@@ -3178,7 +3168,7 @@ class db {
 		$table       = '`' . implode( '`.`', $table_parts ) . '`';
 		$results     = $this->get_results( "SHOW FULL COLUMNS FROM $table" );
 		if ( ! $results ) {
-			return new WP_Error( 'db_get_table_charset_failure', __( 'Could not retrieve table charset.' ) );
+			return new Sync_Error( 'db_get_table_charset_failure', __( 'Could not retrieve table charset.' ) );
 		}
 
 		foreach ( $results as $column ) {
@@ -3243,8 +3233,8 @@ class db {
 	 *
 	 * @param string $table  Table name.
 	 * @param string $column Column name.
-	 * @return string|false|WP_Error Column character set as a string. False if the column has
-	 *                               no character set. WP_Error object if there was an error.
+	 * @return string|false|Sync_Error Column character set as a string. False if the column has
+	 *                               no character set. Sync_Error object if there was an error.
 	 */
 	public function get_col_charset( $table, $column ) {
 		$tablekey  = strtolower( $table );
@@ -3258,7 +3248,7 @@ class db {
 		 *
 		 * @since 4.2.0
 		 *
-		 * @param string|null|false|WP_Error $charset The character set to use. Default null.
+		 * @param string|null|false|Sync_Error $charset The character set to use. Default null.
 		 * @param string                     $table   The name of the table being checked.
 		 * @param string                     $column  The name of the column being checked.
 		 */
@@ -3275,7 +3265,7 @@ class db {
 		if ( empty( $this->table_charset[ $tablekey ] ) ) {
 			// This primes column information for us.
 			$table_charset = $this->get_table_charset( $table );
-			if ( is_wp_error( $table_charset ) ) {
+			if ( is_error( $table_charset ) ) {
 				return $table_charset;
 			}
 		}
@@ -3308,9 +3298,9 @@ class db {
 	 *
 	 * @param string $table  Table name.
 	 * @param string $column Column name.
-	 * @return array|false|WP_Error {
+	 * @return array|false|Sync_Error {
 	 *     Array of column length information, false if the column has no length (for
-	 *     example, numeric column), WP_Error object if there was an error.
+	 *     example, numeric column), Sync_Error object if there was an error.
 	 *
 	 *     @type string $type   One of 'byte' or 'char'.
 	 *     @type int    $length The column length.
@@ -3328,7 +3318,7 @@ class db {
 		if ( empty( $this->col_meta[ $tablekey ] ) ) {
 			// This primes column information for us.
 			$table_charset = $this->get_table_charset( $table );
-			if ( is_wp_error( $table_charset ) ) {
+			if ( is_error( $table_charset ) ) {
 				return $table_charset;
 			}
 		}
@@ -3490,10 +3480,10 @@ class db {
 	 *
 	 * @param array $data Array of value arrays. Each value array has the keys 'value', 'charset', and 'length'.
 	 *                    An optional 'ascii' key can be set to false to avoid redundant ASCII checks.
-	 * @return array|WP_Error The $data parameter, with invalid characters removed from each value.
+	 * @return array|Sync_Error The $data parameter, with invalid characters removed from each value.
 	 *                        This works as a passthrough: any additional keys such as 'field' are
 	 *                        retained in each value array. If we cannot remove invalid characters,
-	 *                        a WP_Error object is returned.
+	 *                        a Sync_Error object is returned.
 	 */
 	protected function strip_invalid_text( $data ) {
 		$db_check_string = false;
@@ -3626,7 +3616,7 @@ class db {
 			$this->check_current_query = false;
 			$row                       = $this->get_row( 'SELECT ' . implode( ', ', $sql ), ARRAY_A );
 			if ( ! $row ) {
-				return new WP_Error( 'db_strip_invalid_text_failure', __( 'Could not strip invalid text.' ) );
+				return new Sync_Error( 'db_strip_invalid_text_failure', __( 'Could not strip invalid text.' ) );
 			}
 
 			foreach ( array_keys( $data ) as $column ) {
@@ -3645,7 +3635,7 @@ class db {
 	 * @since 4.2.0
 	 *
 	 * @param string $query Query to convert.
-	 * @return string|WP_Error The converted query, or a WP_Error object if the conversion fails.
+	 * @return string|Sync_Error The converted query, or a Sync_Error object if the conversion fails.
 	 */
 	protected function strip_invalid_text_from_query( $query ) {
 		// We don't need to check the collation for queries that don't read data.
@@ -3657,7 +3647,7 @@ class db {
 		$table = $this->get_table_from_query( $query );
 		if ( $table ) {
 			$charset = $this->get_table_charset( $table );
-			if ( is_wp_error( $charset ) ) {
+			if ( is_error( $charset ) ) {
 				return $charset;
 			}
 
@@ -3677,7 +3667,7 @@ class db {
 		);
 
 		$data = $this->strip_invalid_text( array( $data ) );
-		if ( is_wp_error( $data ) ) {
+		if ( is_error( $data ) ) {
 			return $data;
 		}
 
@@ -3692,7 +3682,7 @@ class db {
 	 * @param string $table  Table name.
 	 * @param string $column Column name.
 	 * @param string $value  The text to check.
-	 * @return string|WP_Error The converted string, or a WP_Error object if the conversion fails.
+	 * @return string|Sync_Error The converted string, or a Sync_Error object if the conversion fails.
 	 */
 	public function strip_invalid_text_for_column( $table, $column, $value ) {
 		if ( ! is_string( $value ) ) {
@@ -3703,7 +3693,7 @@ class db {
 		if ( ! $charset ) {
 			// Not a string column.
 			return $value;
-		} elseif ( is_wp_error( $charset ) ) {
+		} elseif ( is_error( $charset ) ) {
 			// Bail on real errors.
 			return $charset;
 		}
@@ -3717,7 +3707,7 @@ class db {
 		);
 
 		$data = $this->strip_invalid_text( $data );
-		if ( is_wp_error( $data ) ) {
+		if ( is_error( $data ) ) {
 			return $data;
 		}
 
@@ -3757,16 +3747,16 @@ class db {
 			return str_replace( '`', '', $maybe[1] );
 		}
 
-		// SHOW TABLE STATUS and SHOW TABLES WHERE Name = 'wp_posts'
+		// SHOW TABLE STATUS and SHOW TABLES WHERE Name = 'posts'
 		if ( preg_match( '/^\s*SHOW\s+(?:TABLE\s+STATUS|(?:FULL\s+)?TABLES).+WHERE\s+Name\s*=\s*("|\')((?:[0-9a-zA-Z$_.-]|[\xC2-\xDF][\x80-\xBF])+)\\1/is', $query, $maybe ) ) {
 			return $maybe[2];
 		}
 
 		/*
-		 * SHOW TABLE STATUS LIKE and SHOW TABLES LIKE 'wp\_123\_%'
+		 * SHOW TABLE STATUS LIKE and SHOW TABLES LIKE '_123\_%'
 		 * This quoted LIKE operand seldom holds a full table name.
 		 * It is usually a pattern for matching a prefix so we just
-		 * strip the trailing % and unescape the _ to get 'wp_123_'
+		 * strip the trailing % and unescape the _ to get '123_'
 		 * which drop-ins can use for routing these SQL statements.
 		 */
 		if ( preg_match( '/^\s*SHOW\s+(?:TABLE\s+STATUS|(?:FULL\s+)?TABLES)\s+(?:WHERE\s+Name\s+)?LIKE\s*("|\')((?:[\\\\0-9a-zA-Z$_.-]|[\xC2-\xDF][\x80-\xBF])+)%?\\1/is', $query, $maybe ) ) {
@@ -3895,10 +3885,10 @@ class db {
 				$message = '<p><code>' . $error . "</code></p>\n" . $message;
 			}
 
-			wp_die( $message );
+			sync_die( $message );
 		} else {
-			if ( class_exists( 'WP_Error', false ) ) {
-				$this->error = new WP_Error( $error_code, $message );
+			if ( class_exists( 'Sync_Error', false ) ) {
+				$this->error = new Sync_Error( $error_code, $message );
 			} else {
 				$this->error = $message;
 			}
@@ -3936,15 +3926,15 @@ class db {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @global string $wp_version             The Sync Site version string.
+	 * @global string $version             The Sync Site version string.
 	 * @global string $required_mysql_version The required MySQL version string.
-	 * @return void|WP_Error
+	 * @return void|Sync_Error
 	 */
 	public function check_database_version() {
-		global $wp_version, $required_mysql_version;
+		global $version, $required_mysql_version;
 		// Make sure the server has the required MySQL version.
 		if ( version_compare( $this->db_version(), $required_mysql_version, '<' ) ) {
-			return new WP_Error( 'database_version', sprintf( __( '<strong>Error:</strong> Sync Site %1$s requires MySQL %2$s or higher' ), $wp_version, $required_mysql_version ) );
+			return new Sync_Error( 'database_version', sprintf( __( '<strong>Error:</strong> Sync Site %1$s requires MySQL %2$s or higher' ), $version, $required_mysql_version ) );
 		}
 	}
 
@@ -4018,7 +4008,7 @@ class db {
 		 *
 		 * Note: str_contains() is not used here, as this file can be included
 		 * directly outside of Sync Site core, e.g. by HyperDB, in which case
-		 * the polyfills from wp-includes/compat.php are not loaded.
+		 * the polyfills from includes/functions/compat.php are not loaded.
 		 */
 		if ( '5.5.5' === $db_version && false !== strpos( $db_server_info, 'MariaDB' )
 			&& PHP_VERSION_ID < 80016 // PHP 8.0.15 or older.
