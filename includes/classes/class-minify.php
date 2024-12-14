@@ -119,7 +119,7 @@ class Minify {
 	 * return Minified data.
 	 */
 	public function minify($data, $type) {
-		if ($type==='html') {
+		if ($type==='html' || $type==='htm') {
 			return $this->html($data);
 		} elseif ($type==='css') {
 			return $this->css($data);

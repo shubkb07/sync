@@ -3400,6 +3400,7 @@ function get_mime_types() {
 			'avif'                         => 'image/avif',
 			'ico'                          => 'image/x-icon',
 			'heic'                         => 'image/heic',
+			'svg'                          => 'image/svg+xml',
 			// Video formats.
 			'asf|asx'                      => 'video/x-ms-asf',
 			'wmv'                          => 'video/x-ms-wmv',
@@ -3426,6 +3427,9 @@ function get_mime_types() {
 			'htm|html'                     => 'text/html',
 			'vtt'                          => 'text/vtt',
 			'dfxp'                         => 'application/ttaf+xml',
+			// Font Formats.
+			'woff'                         => 'font/woff',
+			'woff2'                        => 'font/woff2',
 			// Audio formats.
 			'mp3|m4a|m4b'                  => 'audio/mpeg',
 			'aac'                          => 'audio/aac',
@@ -3440,6 +3444,10 @@ function get_mime_types() {
 			// Misc application formats.
 			'rtf'                          => 'application/rtf',
 			'js'                           => 'application/javascript',
+			'json'                         => 'application/json',
+			'xml'                          => 'application/xml',
+			'webmanifest'                  => 'application/manifest+json',
+			'wasm'                         => 'application/wasm',
 			'pdf'                          => 'application/pdf',
 			'swf'                          => 'application/x-shockwave-flash',
 			'class'                        => 'application/java',
