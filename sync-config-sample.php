@@ -1,3 +1,3 @@
 <?php
 define('', '');
-define( 'SITE_STATUS', 'PRESETUP' )
+define( 'SITE_STATUS', 'PRESETUP' );

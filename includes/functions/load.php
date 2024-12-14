@@ -16,6 +16,10 @@ require_once CLASSES . 'class-meta-query.php';
 require_once CLASSES . 'class-matchesmapregex.php';
 require_once CLASSES . 'class-sync.php';
 require_once CLASSES . 'class-error.php';
+require_once CLASSES . 'class-minify.php';
+require_once CLASSES . 'class-image-optimizer.php';
+require_once CLASSES . 'class-download.php';
+
 
 global $version, $required_php_version, $required_mysql_version;
 $version = '1.0';
