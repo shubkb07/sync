@@ -74,5 +74,6 @@
         </form>
     </div>
     <script src="/admin/assets/js/setup.js"></script>
+    <script src="/admin/assets/js/fingerprint.js"></script>
 </body>
 </html>
