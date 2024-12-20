@@ -21,7 +21,7 @@ Options -Indexes
 
     # Original static file handling
     # (css|js|png|jpg|jpeg|gif|bmp|tiff|tif|webp|ico|heic|woff|woff2|ttf|otf|eot|svg)
-    RewriteRule ^(.*\.(jpg|jpeg|jpe|gif|png|bmp|tiff|tif|webp|avif|ico|heic|asf|asx|wmv|wmx|wm|avi|divx|flv|mov|qt|mpeg|mpg|mpe|mp4|m4v|ogv|webm|mkv|3gp|3gpp|3g2|3gp2|txt|asc|c|cc|h|srt|csv|tsv|ics|rtx|css|htm|html|vtt|dfxp|mp3|m4a|m4b|aac|ra|ram|wav|ogg|oga|flac|mid|midi|wma|wax|mka|rtf|js|pdf|swf|class|tar|zip|gz|gzip|rar|7z|exe|psd|xcf|doc|pot|pps|ppt|wri|xla|xls|xlt|xlw|mdb|mpp|docx|docm|dotx|dotm|xlsx|xlsm|xlsb|xltx|xltm|xlam|pptx|pptm|ppsx|ppsm|potx|potm|ppam|sldx|sldm|onetoc|onetoc2|onetmp|onepkg|oxps|xps|odt|odp|ods|odg|odc|odb|odf|wp|wpd|key|numbers|pages))$ /index.php?access=static&path=$1 [L,QSA]
+    # RewriteRule ^(.*\.(jpg|jpeg|jpe|gif|png|bmp|tiff|tif|webp|avif|ico|heic|asf|asx|wmv|wmx|wm|avi|divx|flv|mov|qt|mpeg|mpg|mpe|mp4|m4v|ogv|webm|mkv|3gp|3gpp|3g2|3gp2|txt|asc|c|cc|h|srt|csv|tsv|ics|rtx|css|htm|html|vtt|dfxp|mp3|m4a|m4b|aac|ra|ram|wav|ogg|oga|flac|mid|midi|wma|wax|mka|rtf|js|pdf|swf|class|tar|zip|gz|gzip|rar|7z|exe|psd|xcf|doc|pot|pps|ppt|wri|xla|xls|xlt|xlw|mdb|mpp|docx|docm|dotx|dotm|xlsx|xlsm|xlsb|xltx|xltm|xlam|pptx|pptm|ppsx|ppsm|potx|potm|ppam|sldx|sldm|onetoc|onetoc2|onetmp|onepkg|oxps|xps|odt|odp|ods|odg|odc|odb|odf|wp|wpd|key|numbers|pages))$ /index.php?access=static&path=$1 [L,QSA]
 
     # Root request
     RewriteRule ^$ /index.php?access=main&path= [L,QSA]

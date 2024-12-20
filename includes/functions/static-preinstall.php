@@ -1,10 +1,60 @@
 <?php
 
+require_once CLASSES . 'class-minify.php';
+require_once CLASSES . 'class-image-optimizer.php';
+require_once CLASSES . 'class-download.php';
+
+/**
+ * Retrieves the file type from the file name.
+ *
+ * You can optionally define the mime array, if needed.
+ *
+ * @since 2.0.4
+ *
+ * @param string        $filename File name or path.
+ * @param string[]|null $mimes    Optional. Array of allowed mime types keyed by their file extension regex.
+ *                                Defaults to the result of get_allowed_mime_types().
+ * @return array {
+ *     Values for the extension and mime type.
+ *
+ *     @type string|false $ext  File extension, or false if the file doesn't match a mime type.
+ *     @type string|false $type File mime type, or false if the file doesn't match a mime type.
+ * }
+ */
+function check_filetype( $filename, $mimes = null ) {
+	if ( empty( $mimes ) ) {
+		$mimes = get_allowed_mime_types();
+	}
+	$type = false;
+	$ext  = false;
+
+	foreach ( $mimes as $ext_preg => $mime_match ) {
+		$ext_preg = '!\.(' . $ext_preg . ')$!i';
+		if ( preg_match( $ext_preg, $filename, $ext_matches ) ) {
+			$type = $mime_match;
+			$ext  = $ext_matches[1];
+			break;
+		}
+	}
+
+	return compact( 'ext', 'type' );
+}
+
 function get_mime_types() {
 	return array(
 		'css' => 'text/css',
 		'js'  => 'application/javascript',
+        'ico' => 'image/x-icon',
 	);
+}
+
+/**
+ * Get Option Fake Polyfill.
+ *
+ * @return bool Always returns false.
+ */
+function get_option() {
+	return false;
 }
 
 /**

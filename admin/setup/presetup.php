@@ -1,4 +1,11 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+if (isset($_POST['action']) && $_POST['action'] === 'site_setup') {
+    
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,6 +81,6 @@
         </form>
     </div>
     <script src="/admin/assets/js/setup.js"></script>
-    <script src="/admin/assets/js/fingerprint.js"></script>
+    <script src="/admin/assets/js/fp.js?minify"></script>
 </body>
 </html>

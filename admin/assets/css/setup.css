@@ -48,6 +48,12 @@ h1, h2 {
     flex: 1;
 }
 
+.form-error {
+    color: #ff6b6b;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"] {

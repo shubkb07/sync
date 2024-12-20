@@ -732,12 +732,6 @@ class db {
 		$this->dbpassword = $dbpassword;
 		$this->dbname     = $dbname;
 		$this->dbhost     = $dbhost;
-
-		// sync-config.php creation will manually connect when ready.
-		if ( defined( 'SETUP_CONFIG' ) ) {
-			return;
-		}
-
 		$this->db_connect();
 	}
 
@@ -809,22 +803,16 @@ class db {
 	public function init_charset() {
 		$charset = '';
 		$collate = '';
-
-		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-			$charset = 'utf8';
-			if ( defined( 'DB_COLLATE' ) && DB_COLLATE ) {
-				$collate = DB_COLLATE;
-			} else {
-				$collate = 'utf8_general_ci';
-			}
-		} elseif ( defined( 'DB_COLLATE' ) ) {
+		$charset = 'utf8';
+		if ( defined( 'DB_COLLATE' ) && DB_COLLATE ) {
 			$collate = DB_COLLATE;
+		} else {
+			$collate = 'utf8_general_ci';
 		}
 
 		if ( defined( 'DB_CHARSET' ) ) {
 			$charset = DB_CHARSET;
 		}
-
 		$charset_collate = $this->determine_charset( $charset, $collate );
 
 		$this->charset = $charset_collate['charset'];
@@ -976,7 +964,7 @@ class db {
 			return new Sync_Error( 'invalid_db_prefix', 'Invalid database prefix' );
 		}
 
-		$old_prefix = is_multisite() ? '' : $prefix;
+		$old_prefix = '';
 
 		if ( isset( $this->base_prefix ) ) {
 			$old_prefix = $this->base_prefix;
@@ -1944,6 +1932,13 @@ class db {
 			$this->dbh = null;
 		}
 
+		if (defined('SITE_CONFIG_SETUP') && SITE_CONFIG_SETUP) {
+			if ( ! $this->dbh ) {
+				return false;
+			}
+			return true;
+		}
+
 		if ( ! $this->dbh && $allow_bail ) {
 			load_translations_early();
 
@@ -2046,7 +2041,7 @@ class db {
 
 		$host = ! empty( $matches['host'] ) ? $matches['host'] : '';
 		// MySQLi port cannot be a string; must be null or an integer.
-		$port = ! empty( $matches['port'] ) ? absint( $matches['port'] ) : null;
+		$port = ! empty( $matches['port'] ) ? abs( (int) $matches['port'] ) : null;
 
 		return array( $host, $port, $socket, $is_ipv6 );
 	}

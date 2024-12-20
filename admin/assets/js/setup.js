@@ -31,11 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!dbHost.value.trim()) {
             showError(dbHost, 'Database host is required');
             isValid = false;
-        } else {
-            // If no port specified, append default :3306
-            if (!dbHost.value.includes(':')) {
-                dbHost.value += ':3306';
-            }
         }
 
         // Other DB fields validation

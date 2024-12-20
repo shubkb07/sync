@@ -236,7 +236,7 @@ function static_handler($path) {
 	$output = '';
 
 	$css_js_minify_limit = ($css_js_minify_limit = get_option('css_js_min_limit')) ? (int)$css_js_minify_limit : 1048576;
-	$image_optimize_limit = ($image_optimize_limit = get_option('image_optimize_limit')) ? (int)$image_optimize_limit : 1048576;
+	$image_optimize_limit = ($image_optimize_limit = get_option('image_optimize_limit')) ? (int)$image_optimize_limit : 1048576*3;
 
 	if ((in_array($file_type, array('css','js')) && filesize($path) < $css_js_minify_limit) || ($file_type === 'image' && filesize($path) < $image_optimize_limit)) {
 		$output = minify_and_optimize($path, $extension);
